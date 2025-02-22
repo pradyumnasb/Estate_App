@@ -1,10 +1,8 @@
-
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const { shouldBeLoggedIn} = require('../Controllers/test.controller'); 
+const { shouldBeLoggedIn } = require("../Controllers/test.controller");
+const { verifyToken } = require("../Middleware/auth.middleware");
 
-router.get("/should-be-logged-in", shouldBeLoggedIn, (req, res) => {
-    res.status(200).json({ message: "User is logged in" });
-});
+router.get("/protected", verifyToken, shouldBeLoggedIn);
 
 module.exports = router;

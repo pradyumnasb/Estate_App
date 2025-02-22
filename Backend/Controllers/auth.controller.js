@@ -27,6 +27,7 @@ const register = async (req, res, next) => {
     next(error);
   }
 };
+
 const login = async (req, res) => {
   const { email, password } = req.body;
 
@@ -42,20 +43,16 @@ const login = async (req, res) => {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    const age = 1000 * 60 * 60 * 24 * 7;  // Token expiration: 7 days
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: age,
-    });
+    const token = jwt.sign(
+      { id: user._id },  // Use `id` instead of `userId`
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+    
 
     const userInfo = user.toObject();
     delete userInfo.password;
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      maxAge: age,
-    });
-
-    
     res.status(200).json({ message: "Login successful", token, user: userInfo });
   } catch (err) {
     console.error("Login error:", err.message);
@@ -63,9 +60,8 @@ const login = async (req, res) => {
   }
 };
 
-
 const logout = async (req, res) => {
-  res.clearCookie("token").status(200).json({ message: "Logged out" });
+  return res.status(200).json({ message: "Logged out successfully" });
 };
 
 module.exports = { register, login, logout };

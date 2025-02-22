@@ -1,79 +1,125 @@
-import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useContext } from "react";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { Link as ScrollLink } from "react-scroll"; // ✅ Import react-scroll
+import { Home, Menu, X, User, LogOut } from "lucide-react";
+import { AuthContext } from "./Context/AuthContext";
 
 const Navbar = () => {
+  const { currentUser, updateUser } = useContext(AuthContext);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
-  const [username, setUsername] = useState("");
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem("username");
-    if (storedUser && storedUser.trim() !== "") {
-      setIsLoggedIn(true);
-      setUsername(storedUser);
-    }
-  }, []);
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    updateUser(null);
+    navigate("/login");
+  };
 
   return (
-    <nav className="fixed top-0 w-full bg-cover bg-center shadow-md z-50" style={{ backgroundImage: 'url(./nav.png)' }}>
-      <div className="container mx-auto flex justify-between items-center p-4">
-        <a href="/" className="flex items-center gap-2 font-bold text-2xl text-white">
-          <span className="hidden md:inline">Estate</span>
-        </a>
+    <nav className="bg-gray-800 shadow-lg fixed w-full z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16">
+          <div className="flex items-center">
+            <Home className="h-8 w-8 text-blue-400" />
+            <span className="ml-2 font-bold text-xl text-white">LuxuryEstates</span>
+          </div>
 
-        {/* Desktop Menu */}
-        <ul className="hidden md:flex gap-6 text-white ml-16">
-          <Link to="/" className="hover:text-gray-300">Home</Link>
-          <Link to="/about" className="hover:text-gray-300">About</Link>
-          <Link to="/contact" className="hover:text-gray-300">Contact</Link>
-          <Link to="/agents" className="hover:text-gray-300">Agents</Link>
-        </ul>
+          {/* Desktop Menu */}
+          <div className="hidden md:flex items-center space-x-8">
+            <ScrollLink
+              to="home"
+              smooth={true}
+              duration={500}
+              spy={true}
+              offset={-100}
+              className="text-white cursor-pointer hover:text-blue-400"
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} // ✅ Scrolls to top
+            >
+              Home
+            </ScrollLink>
+            <ScrollLink to="about" smooth={true} duration={500} className="text-white cursor-pointer hover:text-blue-400">
+              About
+            </ScrollLink>
+            <ScrollLink to="projects" smooth={true} duration={500} className="text-white cursor-pointer hover:text-blue-400">
+              Projects
+            </ScrollLink>
+            <ScrollLink to="contact" smooth={true} duration={500} className="text-white cursor-pointer hover:text-blue-400">
+              Contact
+            </ScrollLink>
+          </div>
 
-        {/* Buttons */}
-        <div className="hidden md:flex gap-4 items-center -ml-8">
-          {isLoggedIn ? (
-            <div className="flex items-center gap-4">
-              <span className="text-white font-semibold hidden sm:inline">Hi, {username}</span>
-              <Link to="/profile" className="relative bg-blue-500 px-5 py-2 rounded-full hover:bg-blue-600 text-white cursor-pointer">
-                <div className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center">
-                  3
-                </div>
-                Profile
-              </Link>
-            </div>
-          ) : (
-            <div className="flex gap-4">
-              <Link to="/login" className="bg-white px-5 py-2 rounded-full hover:bg-gray-200 text-black">Sign in</Link>
-              <Link to="/signup" className="bg-green-500 text-white px-5 py-2 rounded-full hover:bg-green-600">Sign up</Link>
-            </div>
-          )}
+          {/* Profile & Auth Buttons */}
+          <div className="hidden md:flex items-center space-x-4">
+            {currentUser ? (
+              <div className="flex items-center space-x-4">
+                <span className="text-white">Hi, {currentUser.username}</span>
+                <RouterLink to="/profile" className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                  <User className="h-5 w-5" />
+                  <span>Profile</span>
+                </RouterLink>
+                <button onClick={handleLogout} className="flex items-center space-x-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
+                  <LogOut className="h-5 w-5" />
+                  <span>Logout</span>
+                </button>
+              </div>
+            ) : (
+              <div className="space-x-2">
+                <RouterLink to="/login" className="px-4 py-2 rounded-lg border border-blue-600 text-blue-600 hover:bg-blue-50">
+                  Sign In
+                </RouterLink>
+                <RouterLink to="/signup" className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">
+                  Sign Up
+                </RouterLink>
+              </div>
+            )}
+          </div>
+
+          {/* Mobile Menu Button */}
+          <div className="md:hidden flex items-center">
+            <button onClick={() => setMenuOpen(!menuOpen)} className="p-2 rounded-lg hover:bg-gray-700">
+              {menuOpen ? <X className="h-6 w-6 text-white" /> : <Menu className="h-6 w-6 text-white" />}
+            </button>
+          </div>
         </div>
-
-        {/* Mobile Menu Button */}
-        <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden">
-          <img src="./menu_icon.svg" alt="Menu" className="w-9 h-9 invert" />
-        </button>
       </div>
 
       {/* Mobile Menu */}
       {menuOpen && (
-        <ul className="md:hidden flex flex-col text-center bg-transparent py-4 shadow-lg text-white">
-          <Link to="/" className="py-2 hover:text-gray-500">Home</Link>
-          <Link to="/about" className="py-2 hover:text-gray-500">About</Link>
-          <Link to="/contact" className="py-2 hover:text-gray-500">Contact</Link>
-          <Link to="/agents" className="py-2 hover:text-gray-500">Agents</Link>
-          {isLoggedIn ? (
-            <>
-              <span className="py-2 font-semibold">Hi, {username}</span>
-              <Link to="/profile" className="py-2 hover:text-gray-500">Profile</Link>
-            </>
-          ) : (
-            <>
-              <Link to="/login" className="py-2 hover:text-gray-500">Sign in</Link>
-              <Link to="/signup" className="py-2 hover:text-gray-500">Sign up</Link>
-            </>
-          )}
-        </ul>
+        <div className="md:hidden">
+          <div className="px-2 pt-2 pb-3 space-y-1">
+            <ScrollLink to="home" smooth={true} duration={500} spy={true} offset={-100} className="block px-3 py-2 text-white hover:bg-gray-700">
+              Home
+            </ScrollLink>
+            <ScrollLink to="about" smooth={true} duration={500} className="block px-3 py-2 text-white hover:bg-gray-700">
+              About
+            </ScrollLink>
+            <ScrollLink to="projects" smooth={true} duration={500} className="block px-3 py-2 text-white hover:bg-gray-700">
+              Projects
+            </ScrollLink>
+            <ScrollLink to="contact" smooth={true} duration={500} className="block px-3 py-2 text-white hover:bg-gray-700">
+              Contact
+            </ScrollLink>
+            {currentUser ? (
+              <div className="space-y-1">
+                <span className="block px-3 py-2 text-white">Hi, {currentUser.username}</span>
+                <RouterLink to="/profile" className="block px-3 py-2 rounded-md text-white hover:bg-gray-700">Profile</RouterLink>
+                <button onClick={handleLogout} className="block w-full text-left px-3 py-2 rounded-md text-white hover:bg-gray-700">
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-1 px-3 py-2">
+                <RouterLink to="/login" className="block w-full px-4 py-2 rounded-lg border border-blue-600 text-blue-600">
+                  Sign In
+                </RouterLink>
+                <RouterLink to="/signup" className="block w-full px-4 py-2 rounded-lg bg-blue-600 text-white">
+                  Sign Up
+                </RouterLink>
+              </div>
+            )}
+          </div>
+        </div>
       )}
     </nav>
   );

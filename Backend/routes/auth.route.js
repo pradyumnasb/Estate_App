@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { register, login, logout } = require("../Controllers/auth.controller");
-const { checkIfLoggedIn, verifyToken } = require("../Middleware/auth.middleware"); // Add the middleware
+const { checkIfLoggedIn, verifyToken } = require("../Middleware/auth.middleware");
 
 // Register route
 router.post("/register", register);

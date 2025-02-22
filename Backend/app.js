@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 const authRoute = require('./routes/auth.route');
 const postRoute = require('./routes/post.route');
 const testRoute = require('./routes/test.route');
+const userRoute = require('./routes/user.route'); // ✅ Added User Routes
 const cookieParser = require('cookie-parser');
 
 dotenv.config(); 
@@ -25,6 +26,7 @@ mongoose.connect(process.env.MONGO_URL)
 app.use('/api/posts', postRoute);
 app.use('/api/auth', authRoute);
 app.use('/api/test', testRoute);
+app.use('/api/users', userRoute); // ✅ Added User Routes
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

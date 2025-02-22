@@ -1,6 +1,6 @@
-import Slider from "../Components/List/Slider";
-import Map from "../Components/List/Map";
-import { singlePostData, userData } from "../Components/LIB/DummyData";
+import Slider from "../List/Slider";
+import Map from "../List/Map";
+import { singlePostData, userData } from "../LIB/DummyData";
 import { MdLocationOn, MdOutlinePets, MdOutlineAttachMoney, MdAspectRatio, MdHotel, MdBathtub, MdSchool, MdDirectionsBus, MdRestaurant, MdChat, MdBookmark } from "react-icons/md";
 
 function SinglePage() {
