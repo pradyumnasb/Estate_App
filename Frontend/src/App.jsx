@@ -9,15 +9,22 @@ import GetStarted from './Components/Pages/GetStarted';
 import SinglePage from './Components/Pages/SinglePage';  
 import ProfilePage from './Components/Pages/ProfilePage';
 import ProfileUpdatePage from './Components/Pages/ProfileUpdatePage';
+import NewPostPage from './Components/Pages/NewPostPage'; // ✅ Import the new post page
+import AboutPage from './Components/Pages/AboutPage';
 import { AuthContextProvider } from './Components/Context/AuthContext';
 import Contact from './Components/Pages/Contact';
 import ProtectedRoute from './Components/ProtectedRoute';
+import ScrollToTop from "./Components/List/ScrollToTop";
+
 
 const App = () => {
+    
+  
   return (
     <AuthContextProvider>
       <Router>
         <Navbar />
+        <ScrollToTop />
         <div className="pt-12">  
           <Routes>
             {/* ✅ Home Page Route */}
@@ -26,9 +33,9 @@ const App = () => {
             {/* ✅ Public Routes */}
             <Route path="/login" element={<Login />} />    
             <Route path="/signup" element={<GetStarted />} />  
-            <Route path="/about" element={<About />} /> 
-            <Route path="/projects" element={<List />} /> 
+            <Route path="/about" element={<About />} />  
             <Route path="/contact" element={<Contact />} /> 
+            <Route path="/aboutpage" element={<AboutPage />} /> 
 
             {/* ✅ Protected Routes */}
             <Route path="/profile" element={
@@ -43,7 +50,7 @@ const App = () => {
               </ProtectedRoute>  
             } />  
 
-            <Route path="/list" element={
+            <Route path="/property" element={
               <ProtectedRoute>
                 <List />
               </ProtectedRoute>
@@ -54,6 +61,13 @@ const App = () => {
                 <SinglePage />
               </ProtectedRoute>
             } />  
+
+            {/* ✅ New Post Route */}
+            <Route path="/new-post" element={
+              <ProtectedRoute>
+                <NewPostPage />
+              </ProtectedRoute>
+            } />
           </Routes>
         </div>
       </Router>

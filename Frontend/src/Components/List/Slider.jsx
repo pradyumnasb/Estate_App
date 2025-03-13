@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
 function Slider({ images }) {
   const [imageIndex, setImageIndex] = useState(null);
@@ -15,23 +16,34 @@ function Slider({ images }) {
     <div className="w-full h-[350px] flex gap-5 sm:h-[280px] relative">
       {imageIndex !== null && (
         <div className="fixed inset-0 bg-black flex justify-between items-center z-[9999]">
-          <div className="flex-1 flex justify-center items-center cursor-pointer" onClick={() => changeSlide("left")}> 
-            <img src="/arrow.png" alt="left arrow" className="w-12 md:w-8 sm:w-5" />
+          {/* Left Arrow */}
+          <div className="flex-1 flex justify-center items-center cursor-pointer" onClick={() => changeSlide("left")}>
+            <ChevronLeft className="w-12 h-12 md:w-8 md:h-8 sm:w-5 sm:h-5 text-white" />
           </div>
+
+          {/* Main Image */}
           <div className="flex-[10]">
             <img src={images[imageIndex]} alt="slide" className="w-full h-full object-cover" />
           </div>
-          <div className="flex-1 flex justify-center items-center cursor-pointer" onClick={() => changeSlide("right")}> 
-            <img src="/arrow.png" alt="right arrow" className="w-12 md:w-8 sm:w-5 rotate-180" />
+
+          {/* Right Arrow */}
+          <div className="flex-1 flex justify-center items-center cursor-pointer" onClick={() => changeSlide("right")}>
+            <ChevronRight className="w-12 h-12 md:w-8 md:h-8 sm:w-5 sm:h-5 text-white" />
           </div>
-          <div className="absolute top-0 right-0 text-white text-4xl font-bold p-12 cursor-pointer" onClick={() => setImageIndex(null)}>X</div>
+
+          {/* Close Icon */}
+          <div className="absolute top-0 right-0 text-white text-4xl font-bold p-12 cursor-pointer" onClick={() => setImageIndex(null)}>
+            <X className="w-8 h-8" />
+          </div>
         </div>
       )}
 
+      {/* Main Image Thumbnail */}
       <div className="flex-[3] sm:flex-[2] cursor-pointer">
         <img src={images[0]} alt="main" className="w-full h-full object-cover rounded-xl" onClick={() => setImageIndex(0)} />
       </div>
 
+      {/* Small Thumbnails */}
       <div className="flex-1 flex flex-col justify-between gap-5">
         {images.slice(1).map((image, index) => (
           <img
