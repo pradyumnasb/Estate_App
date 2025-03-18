@@ -1,69 +1,79 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { Link as ScrollLink, animateScroll as scroll } from "react-scroll";
-import { Home, Menu, X, User, LogOut } from "lucide-react";
-import { AuthContext } from "./Context/AuthContext";
+import { Home, Menu, X, User, Bell } from "lucide-react";
+import { AuthContext } from "../Context/AuthContext";
+import { NotificationContext } from "../Context/NotificationContext";
+import axios from "axios";
 
 const Navbar = () => {
-  const { currentUser, updateUser } = useContext(AuthContext);
+  const { currentUser } = useContext(AuthContext);
+  const { notifications = [], setNotifications } = useContext(NotificationContext);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [currentPath, setCurrentPath] = useState(window.location.pathname);
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-    updateUser(null);
-    navigate("/login");
-  };
+  useEffect(() => {
+    setCurrentPath(window.location.pathname);
+  }, [window.location.pathname]);
 
   const navigateToHome = () => {
-    if (window.location.pathname === "/") {
-      scroll.scrollToTop({ behavior: "smooth" }); // Scroll to top if already on home
+    if (currentPath === "/") {
+      scroll.scrollToTop({ behavior: "smooth" });
     } else {
-      navigate("/"); // Navigate to home first
+      navigate("/");
       setTimeout(() => {
         scroll.scrollToTop({ behavior: "smooth" });
       }, 100);
     }
   };
 
+  const fetchNotifications = async () => {
+    if (!currentUser?._id) return;
+
+    try {
+      const response = await axios.get(`/api/notifications/${currentUser._id}`);
+      if (Array.isArray(response.data)) {
+        setNotifications(response.data);
+      } else {
+        setNotifications([]);
+      }
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    }
+  };
+
+  const markAsRead = async (notificationId) => {
+    try {
+      await axios.put(`/api/notifications/${notificationId}/read`);
+      setNotifications((prev) => prev.filter((n) => n._id !== notificationId));
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 30000);
+    return () => clearInterval(interval); // Cleanup on unmount
+  }, [currentUser]);
+
   return (
     <nav className="bg-gray-800 shadow-lg fixed w-full z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
+        <div className="grid grid-cols-3 items-center h-16">
           {/* Logo - Click to navigate home */}
           <div
             className="flex items-center cursor-pointer"
             onClick={navigateToHome}
           >
             <Home className="h-8 w-8 text-blue-400" />
-            <span className="ml-2 font-bold text-xl text-white">
-              LuxuryEstates
-            </span>
+            <span className="font-bold text-xl text-white">LuxuryEstates</span>
           </div>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-8">
-            {window.location.pathname === "/" ? (
-              <ScrollLink
-                to="home"
-                smooth={true}
-                duration={500}
-                offset={-100}
-                className="text-white cursor-pointer hover:text-blue-400"
-                onClick={() => scroll.scrollToTop({ behavior: "smooth" })}
-              >
-                Home
-              </ScrollLink>
-            ) : (
-              <RouterLink
-                to="/"
-                className="text-white cursor-pointer hover:text-blue-400"
-                onClick={navigateToHome}
-              >
-                Home
-              </RouterLink>
-            )}
+          <div className="flex justify-center space-x-8">
             {window.location.pathname === "/" ? (
               <ScrollLink
                 to="about"
@@ -129,10 +139,17 @@ const Navbar = () => {
                 Contact
               </RouterLink>
             )}
+
+            <RouterLink
+              to="/worker-page"
+              className="text-white cursor-pointer hover:text-blue-400"
+            >
+              Find A Worker
+            </RouterLink>
           </div>
 
           {/* Profile & Auth Buttons */}
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="ml-auto flex items-center space-x-4">
             {currentUser ? (
               <div className="flex items-center space-x-4">
                 <span className="text-white">Hi, {currentUser.username}</span>
@@ -143,30 +160,48 @@ const Navbar = () => {
                   <User className="h-5 w-5" />
                   <span>Profile</span>
                 </RouterLink>
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center space-x-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
-                >
-                  <LogOut className="h-5 w-5" />
-                  <span>Logout</span>
-                </button>
               </div>
             ) : (
               <div className="space-x-2">
-                <RouterLink
-                  to="/login"
-                  className="px-4 py-2 rounded-lg border border-blue-600 text-blue-600 hover:bg-blue-50"
-                >
+                <RouterLink to="/login" className="px-4 py-2 rounded-lg border border-blue-600 text-blue-600 hover:bg-blue-50">
                   Sign In
                 </RouterLink>
-                <RouterLink
-                  to="/signup"
-                  className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
-                >
+                <RouterLink to="/signup" className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">
                   Sign Up
                 </RouterLink>
               </div>
             )}
+
+            {/* Notification Bell */}
+            <div className="relative">
+              <button onClick={() => setShowNotifications(!showNotifications)} className="relative">
+                <Bell className="h-6 w-6 text-white" />
+                {notifications.length > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 rounded-full">
+                    {notifications.length}
+                  </span>
+                )}
+              </button>
+
+              {showNotifications && (
+                <div className="absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-lg overflow-hidden">
+                  <div className="p-2">
+                    {notifications.length === 0 ? (
+                      <p className="text-gray-500 text-sm">No new notifications</p>
+                    ) : (
+                      notifications.map((notif, index) => (
+                        <div key={notif._id} className="p-2 border-b last:border-none hover:bg-gray-100">
+                          <p className="text-sm text-gray-700">{notif.message}</p>
+                          <button onClick={() => markAsRead(notif._id)} className="text-blue-500 text-xs">
+                            Mark as Read
+                          </button>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Mobile Menu Button */}

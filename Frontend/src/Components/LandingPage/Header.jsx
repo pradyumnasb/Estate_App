@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
-import Navbar from './Navbar'
-import SearchBar from './List/SearchBar';
+import SearchBar from '../List/SearchBar';
 
 const Header = () => {
   

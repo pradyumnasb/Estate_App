@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Filter from "./Filter";
 import Card from "./Card";
 import Map from "./Map";
-import { Link } from "react-router-dom";
+
 
 
 function ListPage() {

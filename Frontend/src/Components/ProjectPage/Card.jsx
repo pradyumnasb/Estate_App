@@ -13,15 +13,8 @@ function Card({ item, onDelete }) {
     return <p className="text-red-500">Error: Invalid property data</p>;
   }
 
-  // ✅ Debugging Logs (Check Console)
-  console.log("Post Data:", item);
-  console.log("Current User ID:", currentUser?._id);
-  console.log("Post Owner ID:", item?.user || item?.userId);
-
-  // ✅ Ensure only post owner can delete
   const isOwner = currentUser && currentUser._id === (item?.user || item?.userId);
-  console.log("Is Owner:", isOwner); // Should be true for the owner
-
+  
   const handleDelete = async () => {
     if (!window.confirm("Are you sure you want to delete this post?")) return;
 

@@ -2,8 +2,8 @@ import { useEffect, useState, useContext } from "react";
 import { useParams } from "react-router-dom";
 import { AuthContext } from "../Context/AuthContext"; // Import AuthContext
 import Slider from "../List/Slider";
-import ChatPopUp from "../Profile/ChatPopup";
-import Map from "../List/Map";
+import ChatPopUp from "../ProfilePage/ChatPopup";
+import Map from "./Map";
 import {
   MdLocationOn,
   MdOutlinePets,

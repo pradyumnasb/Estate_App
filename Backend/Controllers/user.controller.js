@@ -25,29 +25,46 @@ exports.getUser = async (req, res) => {
   }
 };
 
-// Update user ✅ FIXED
+
 exports.updateUser = async (req, res) => {
   const { id } = req.params;
-  const { password, ...updateData } = req.body;
+  const { currentPassword, newPassword, ...updateData } = req.body;
+
+  console.log("Received Update Request for User:", id);
+  console.log("Request Body:", req.body);
 
   if (req.user.id !== id) {
     return res.status(403).json({ message: "Not Authorized!" });
   }
 
   try {
-    if (password) {
-      updateData.password = await bcrypt.hash(password, 10);
+    const user = await User.findById(id);
+    if (!user) return res.status(404).json({ message: "User not found!" });
+
+    if (newPassword) {
+      if (!currentPassword) {
+        return res.status(400).json({ message: "Current password is required!" });
+      }
+
+      console.log("Verifying current password...");
+      const isMatch = await bcrypt.compare(currentPassword, user.password);
+      if (!isMatch) {
+        return res.status(400).json({ message: "Incorrect current password!" });
+      }
+
+      updateData.password = await bcrypt.hash(newPassword, 10);
     }
 
+    console.log("Updating User with:", updateData);
     const updatedUser = await User.findByIdAndUpdate(id, updateData, { new: true });
-    if (!updatedUser) return res.status(404).json({ message: "User not found!" });
 
     res.status(200).json(updatedUser);
   } catch (err) {
-    console.error(err);
+    console.error("Update Error:", err);
     res.status(500).json({ message: "Failed to update user!" });
   }
 };
+
 
 // Delete user ✅ FIXED
 exports.deleteUser = async (req, res) => {

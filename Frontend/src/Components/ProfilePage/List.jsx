@@ -1,6 +1,6 @@
 import { useEffect, useState, useContext } from "react";
 import { AuthContext } from "../Context/AuthContext";
-import Card from "../List/Card";
+import Card from "../ProjectPage/Card";
 import PropTypes from "prop-types";
 
 function List({ fetchType = "user", posts: propPosts = [] }) {
